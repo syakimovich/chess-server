@@ -5,7 +5,6 @@ import com.github.syakimovich.chessserver.repositories.UserRepository;
 import com.github.syakimovich.chessserver.user.UserDetailsImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +23,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username %s not found".formatted(username)));
+        User user = userRepository.findByUsernameOrThrowException(username);
         return new UserDetailsImpl(user.getUsername(), user.getPassword(), user.getRole());
     }
 
