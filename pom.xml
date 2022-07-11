@@ -76,6 +76,11 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+					<systemPropertyVariables>
+						<spring.datasource.url>${dbUrl}</spring.datasource.url>
+						<spring.datasource.username>${dbUsername}</spring.datasource.username>
+						<spring.datasource.password>${dbPassword}</spring.datasource.password>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 			<plugin>
