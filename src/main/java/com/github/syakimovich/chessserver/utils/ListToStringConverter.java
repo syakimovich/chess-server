@@ -2,8 +2,8 @@ package com.github.syakimovich.chessserver.utils;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Converter
@@ -18,6 +18,6 @@ public class ListToStringConverter implements AttributeConverter<List<String>, S
 
     @Override
     public List<String> convertToEntityAttribute(String dbData) {
-        return dbData == null || dbData.isEmpty() ? new ArrayList<>() : new ArrayList<>(Arrays.asList(dbData.split(SEPARATOR)));
+        return dbData == null || dbData.isEmpty() ? Collections.emptyList() : Arrays.asList(dbData.split(SEPARATOR));
     }
 }

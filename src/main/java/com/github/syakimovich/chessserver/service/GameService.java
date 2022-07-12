@@ -10,6 +10,7 @@ import com.github.syakimovich.chessserver.repositories.UserRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,8 +71,9 @@ public class GameService {
         boolean isValid = board.doMove(move);
         if (isValid) {
             List<String> moves = game.getMoves();
-            moves.add(move);
-            game.setMoves(moves);
+            List<String> newMoves = new ArrayList<>(moves);
+            newMoves.add(move);
+            game.setMoves(newMoves);
 
             if(board.isDraw()) {
                 game.setStatus(GameStatuses.DRAW);
