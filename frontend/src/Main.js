@@ -20,7 +20,7 @@ function Main(props) {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({gameId: gameId, secondPlayerUsername: props.loggedInUser})
+      body: JSON.stringify({gameId: gameId, opponent: props.loggedInUser})
     });
     props.openGame(gameId);
   }
