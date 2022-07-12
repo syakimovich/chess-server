@@ -19,7 +19,7 @@ function CreateGame(props) {
   }
 
   return <div>
-    <div>Create Game</div>
+    <div>Create new game</div>
     <Formik
       initialValues={{
         isCreatorWhite: true

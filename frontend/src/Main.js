@@ -27,15 +27,37 @@ function Main(props) {
 
   const gameList = function(games) {
     return games.map(
-      (g) => (<div>{g.id} {g.creator} {g.creatorWhite + ''} <button onClick={() => callJoinGame(g.id)}>Join</button></div>)
+      (g) => (<tr>
+          <td>{g.id}</td> 
+          <td>{g.creatorWhite ? g.creator : g.opponent}</td> 
+          <td>{!g.creatorWhite ? g.creator : g.opponent}</td> 
+          <td>{g.creator}</td> 
+          <td>{g.status}</td>
+          <td><button onClick={() => callJoinGame(g.id)}>Join</button></td>
+        </tr>)
     );
   };
 
   return <div>
     <div>Main</div>
-    <div>{gameList(games)}</div>
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th>game id</th>
+            <th>White</th>
+            <th>Black</th>
+            <th>Creator</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {gameList(games)}
+        </tbody>
+      </table>
+    
+    </div>
     <button onClick={props.createGame}>Create new game</button>
-    {JSON.stringify(games)}
   </div>
 }
 
