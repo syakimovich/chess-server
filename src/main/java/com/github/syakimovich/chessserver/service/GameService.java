@@ -1,6 +1,7 @@
 package com.github.syakimovich.chessserver.service;
 
 import com.github.bhlangonijr.chesslib.Board;
+import com.github.bhlangonijr.chesslib.Side;
 import com.github.syakimovich.chessserver.consts.GameStatuses;
 import com.github.syakimovich.chessserver.dto.GameDTO;
 import com.github.syakimovich.chessserver.entities.Game;
@@ -51,6 +52,7 @@ public class GameService {
         game.setOpponent(userRepository.findByUsernameOrThrowException(opponentUsername));
         game.setStatus(GameStatuses.WHITE_TO_MOVE);
         gameRepository.save(game);
+        messagingTemplate.convertAndSend("/moves/" + gameId, "");
     }
 
     /**
@@ -70,6 +72,23 @@ public class GameService {
             List<String> moves = game.getMoves();
             moves.add(move);
             game.setMoves(moves);
+
+            if(board.isDraw()) {
+                game.setStatus(GameStatuses.DRAW);
+            } else if (board.isMated()) {
+                if (board.getSideToMove().equals(Side.WHITE)) {
+                    game.setStatus(GameStatuses.BLACK_WON);
+                } else {
+                    game.setStatus(GameStatuses.WHITE_WON);
+                }
+            } else {
+                if (board.getSideToMove().equals(Side.WHITE)) {
+                    game.setStatus(GameStatuses.WHITE_TO_MOVE);
+                } else {
+                    game.setStatus(GameStatuses.BLACK_TO_MOVE);
+                }
+            }
+
             gameRepository.save(game);
             messagingTemplate.convertAndSend("/moves/" + gameId, move);
             return true;
