@@ -83,9 +83,11 @@ function Game(props) {
   }
 
   return <div>
-    <div>Game id: {gameInfo.id} White: {gameInfo.creatorWhite ? gameInfo.creator : gameInfo.opponent} 
-    Black: {!gameInfo.creatorWhite ? gameInfo.creator : gameInfo.opponent} 
-    Creator: {gameInfo.creator} Status: {gameInfo.status}</div>
+    <div>Game id: {gameInfo.id}&nbsp;
+    White: {gameInfo.creatorWhite ? gameInfo.creator : gameInfo.opponent}&nbsp;
+    Black: {!gameInfo.creatorWhite ? gameInfo.creator : gameInfo.opponent}&nbsp; 
+    Creator: {gameInfo.creator}&nbsp;
+    Status: {gameInfo.status}</div>
     <div><Chessboard position={game.fen()} onPieceDrop={onDrop} boardOrientation={getBoardOrientation(gameInfo)} arePiecesDraggable={isCurrentPlayerMove(game, gameInfo)} /></div>
   </div>
 }
