@@ -2,6 +2,7 @@ package com.github.syakimovich.chessserver.service;
 
 import com.github.bhlangonijr.chesslib.Board;
 import com.github.bhlangonijr.chesslib.Side;
+import com.github.bhlangonijr.chesslib.move.MoveConversionException;
 import com.github.syakimovich.chessserver.consts.GameStatuses;
 import com.github.syakimovich.chessserver.dto.GameDTO;
 import com.github.syakimovich.chessserver.entities.Game;
@@ -68,7 +69,14 @@ public class GameService {
         for (String oldMove : game.getMoves()) {
             board.doMove(oldMove);
         }
-        boolean isValid = board.doMove(move);
+
+        boolean isValid;
+        try {
+            isValid = board.doMove(move);
+        } catch (MoveConversionException mce) {
+            isValid = false;
+        }
+
         if (isValid) {
             List<String> moves = game.getMoves();
             List<String> newMoves = new ArrayList<>(moves);
