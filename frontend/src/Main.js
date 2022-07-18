@@ -27,7 +27,7 @@ function Main(props) {
 
   const gameList = function(games) {
     return games.map(
-      (g) => (<tr>
+      (g) => (<tr key={g.id}>
           <td>{g.id}</td> 
           <td>{g.creatorWhite ? g.creator : g.opponent}</td> 
           <td>{!g.creatorWhite ? g.creator : g.opponent}</td> 
