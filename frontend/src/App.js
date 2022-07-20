@@ -3,6 +3,9 @@ import Main from './Main';
 import Game from './Game';
 import CreateGame from './CreateGame';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Container from 'react-bootstrap/Container';
+import Navbar from 'react-bootstrap/Navbar';
+import Button from 'react-bootstrap/Button';
 
 function App(props) {
   const [appState, setAppState] = useState({view: 'main'});
@@ -18,8 +21,26 @@ function App(props) {
   } else {
     content = <div>Error</div>
   }
+
+  async function logout() {
+    await fetch('/logout', {
+      method: 'POST'
+    });
+    window.location.reload();
+  }
   return (
     <div className="App">
+      <Navbar>
+        <Container>
+          <Navbar.Brand>Chess server</Navbar.Brand>
+          <Navbar.Toggle />
+          <Navbar.Collapse className="justify-content-end">
+            <Navbar.Text>
+              Signed in as: {props.loggedInUser} <Button onClick={logout}>Logout</Button>
+            </Navbar.Text>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
       {content}
     </div>
   );

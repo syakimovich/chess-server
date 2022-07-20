@@ -12,10 +12,7 @@
   </head>
   <body>
     <div>
-      Hello, <span id="username" th:text="${#authentication.name}">user</span>.
-      <form th:action="@{/logout}" method="post">
-        <input type="submit" value="Log Out"/>
-      </form>
+      <span hidden id="username" th:text="${#authentication.name}">u2</span>.
     </div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
