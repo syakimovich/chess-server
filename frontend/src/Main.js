@@ -1,5 +1,10 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
+import Table from 'react-bootstrap/Table';
+import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 function Main(props) {
   const [games, setGames] = useState([]);
@@ -7,14 +12,13 @@ function Main(props) {
     async function fetchData() {
       const response = await fetch('/game/listopen');
       const res = await response.json();
-      console.log("games:" + res);
       setGames(res);
     }
     fetchData();
   }, []);
 
   async function callJoinGame(gameId) {
-    const response = await fetch('/game/join', {
+    await fetch('/game/join', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -33,32 +37,38 @@ function Main(props) {
           <td>{!g.creatorWhite ? g.creator : g.opponent}</td> 
           <td>{g.creator}</td> 
           <td>{g.status}</td>
-          <td><button onClick={() => callJoinGame(g.id)}>Join</button></td>
+          <td><Button variant="primary" onClick={() => callJoinGame(g.id)}>Join</Button></td>
         </tr>)
     );
   };
 
-  return <div>
-    <div>Main</div>
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <th>game id</th>
-            <th>White</th>
-            <th>Black</th>
-            <th>Creator</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {gameList(games)}
-        </tbody>
-      </table>
+  return <Container>
+    <Row>
+      <Col>
+        <div>Main</div>
+        <div>
+          <Table bordered>
+            <thead>
+              <tr>
+                <th>Game id</th>
+                <th>White</th>
+                <th>Black</th>
+                <th>Creator</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gameList(games)}
+            </tbody>
+          </Table>
+        
+        </div>
+        <Button variant="primary" onClick={props.createGame}>Create new game</Button>
+      </Col>
+    </Row>
     
-    </div>
-    <button onClick={props.createGame}>Create new game</button>
-  </div>
+  </Container>
 }
 
 export default Main;
