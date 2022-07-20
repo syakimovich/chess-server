@@ -2,6 +2,7 @@ import { useState } from "react";
 import Main from './Main';
 import Game from './Game';
 import CreateGame from './CreateGame';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App(props) {
   const [appState, setAppState] = useState({view: 'main'});
