@@ -45,7 +45,6 @@ function Main(props) {
   return <Container>
     <Row>
       <Col>
-        <div>Main</div>
         <div>
           <Table bordered>
             <thead>
