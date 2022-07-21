@@ -4,6 +4,7 @@ import { Chessboard } from "react-chessboard";
 import { useState, useEffect } from "react";
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
+import Button from 'react-bootstrap/Button';
 
 function Game(props) {
   const [game, setGame] = useState(new Chess());
@@ -32,14 +33,36 @@ function Game(props) {
     });
   }
 
-  async function postMove(move) {
-    await fetch('/game/' + props.gameId + '/move', {
+  function postMove(move) {
+    fetch('/game/' + props.gameId + '/move', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       body: move
+    });
+  }
+
+  function proposeDraw() {
+    fetch('/game/' + props.gameId + '/proposeDraw', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: props.loggedInUser
+    });
+  }
+
+  function acceptDraw() {
+    fetch('/game/' + props.gameId + '/acceptDraw', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: props.loggedInUser
     });
   }
 
@@ -70,24 +93,52 @@ function Game(props) {
     });
   }
 
-  function getBoardOrientation(gameInfo) {
-    if (gameInfo.creatorWhite) {
-      return props.loggedInUser === gameInfo.creator ? 'white' : 'black';
+  function getBoardOrientation(gameParam) {
+    if (gameParam.creatorWhite) {
+      return props.loggedInUser === gameParam.creator ? 'white' : 'black';
     } else {
-      return props.loggedInUser === gameInfo.opponent ? 'white' : 'black';
+      return props.loggedInUser === gameParam.opponent ? 'white' : 'black';
     }
   }
 
-  function isCurrentPlayerMove(chessJsObj, gameInfo) {
-    return (getBoardOrientation(gameInfo) === 'white') !== (chessJsObj.turn() !== 'w');
+  function isCurrentPlayerMove(chessJsObj, gameParam) {
+    return (getBoardOrientation(gameParam) === 'white') !== (chessJsObj.turn() !== 'w');
+  }
+
+  function getWhiteUsername(gameParam) {
+    return gameParam.creatorWhite ? gameParam.creator : gameParam.opponent;
+  }
+
+  function getBlackUsername(gameParam) {
+    return !gameParam.creatorWhite ? gameParam.creator : gameParam.opponent;
+  }
+
+  function getDrawButton(gameParam) {
+    if (gameParam.drawStatus === 'NO_PROPOSAL') {
+      return <Button onClick={proposeDraw} >Propose draw</Button>
+    }
+    if (gameParam.drawStatus === 'WHITE_PROPOSES_DRAW') {
+      if (props.loggedInUser === getBlackUsername(gameParam)) {
+        return <Button onClick={acceptDraw} >Accept draw</Button>
+      }
+    }
+    if (gameParam.drawStatus === 'BLACK_PROPOSES_DRAW') {
+      if (props.loggedInUser === getWhiteUsername(gameParam)) {
+        return <Button onClick={acceptDraw} >Accept draw</Button>
+      }
+    }
   }
 
   return <div>
     <div>Game id: {gameInfo.id}&nbsp;
-    White: {gameInfo.creatorWhite ? gameInfo.creator : gameInfo.opponent}&nbsp;
-    Black: {!gameInfo.creatorWhite ? gameInfo.creator : gameInfo.opponent}&nbsp; 
+    White: {getWhiteUsername(gameInfo)}&nbsp;
+    Black: {getBlackUsername(gameInfo)}&nbsp;
     Creator: {gameInfo.creator}&nbsp;
-    Status: {gameInfo.status}</div>
+    Status: {gameInfo.status}&nbsp;
+    Draw status: {gameInfo.drawStatus}</div>
+    <div>
+      {getDrawButton(gameInfo)}
+    </div>
     <div><Chessboard position={game.fen()} onPieceDrop={onDrop} boardOrientation={getBoardOrientation(gameInfo)} arePiecesDraggable={isCurrentPlayerMove(game, gameInfo)} /></div>
   </div>
 }

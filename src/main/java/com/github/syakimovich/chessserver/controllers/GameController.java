@@ -31,6 +31,16 @@ public class GameController {
         gameService.join(dto.getId(), dto.getOpponent());
     }
 
+    @PostMapping("/game/{gameId}/proposeDraw")
+    public void proposeDraw(@PathVariable Long gameId, @RequestBody String username) {
+        gameService.proposeDraw(gameId, username);
+    }
+
+    @PostMapping("/game/{gameId}/acceptDraw")
+    public void acceptDraw(@PathVariable Long gameId, @RequestBody String username) {
+        gameService.acceptDraw(gameId, username);
+    }
+
     @GetMapping("/game/{gameId}")
     public GameDTO getGame(@PathVariable Long gameId) {
         return gameService.findGame(gameId);

@@ -19,4 +19,6 @@ public class GameDTO {
     private List<String> moves;
     @Getter
     private String status;
+    @Getter
+    private String drawStatus;
 }

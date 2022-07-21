@@ -1,5 +1,6 @@
 package com.github.syakimovich.chessserver.entities;
 
+import com.github.syakimovich.chessserver.consts.DrawStatuses;
 import com.github.syakimovich.chessserver.utils.ListToStringConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,8 +41,29 @@ public class Game {
     @Setter
     private String status;
 
+    @Getter
+    @Setter
+    @Enumerated(EnumType.STRING)
+    private DrawStatuses drawStatus;
+
     public Game(User creator, boolean creatorWhite) {
         this.creator = creator;
         this.creatorWhite = creatorWhite;
+    }
+
+    public User getWhiteUser() {
+        if (isCreatorWhite()) {
+            return getCreator();
+        } else {
+            return getOpponent();
+        }
+    }
+
+    public User getBlackUser() {
+        if (isCreatorWhite()) {
+            return getOpponent();
+        } else {
+            return getCreator();
+        }
     }
 }

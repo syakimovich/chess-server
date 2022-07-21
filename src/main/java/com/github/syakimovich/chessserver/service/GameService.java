@@ -3,12 +3,15 @@ package com.github.syakimovich.chessserver.service;
 import com.github.bhlangonijr.chesslib.Board;
 import com.github.bhlangonijr.chesslib.Side;
 import com.github.bhlangonijr.chesslib.move.MoveConversionException;
+import com.github.syakimovich.chessserver.consts.DrawStatuses;
 import com.github.syakimovich.chessserver.consts.GameStatuses;
 import com.github.syakimovich.chessserver.dto.GameDTO;
 import com.github.syakimovich.chessserver.entities.Game;
+import com.github.syakimovich.chessserver.exceptions.InvalidActionException;
 import com.github.syakimovich.chessserver.repositories.GameRepository;
 import com.github.syakimovich.chessserver.repositories.UserRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -46,6 +49,7 @@ public class GameService {
         } else {
             game.setStatus(GameStatuses.WHITE_TO_JOIN);
         }
+        game.setDrawStatus(DrawStatuses.NO_PROPOSAL);
         return gameRepository.save(game).getId();
     }
 
@@ -53,6 +57,37 @@ public class GameService {
         Game game = gameRepository.findByIdOrThrowException(gameId);
         game.setOpponent(userRepository.findByUsernameOrThrowException(opponentUsername));
         game.setStatus(GameStatuses.WHITE_TO_MOVE);
+        gameRepository.save(game);
+        messagingTemplate.convertAndSend("/moves/" + gameId, "");
+    }
+
+    public void proposeDraw(long gameId, String playerUsername) {
+        Game game = gameRepository.findByIdOrThrowException(gameId);
+        if (!DrawStatuses.NO_PROPOSAL.equals(game.getDrawStatus())) {
+            throw new InvalidActionException("Can't propose draw while game with id %s is in draw status: %s".formatted(game.getId(), game.getDrawStatus()));
+        }
+        if (game.getWhiteUser().getUsername().equals(playerUsername)) {
+            game.setDrawStatus(DrawStatuses.WHITE_PROPOSES_DRAW);
+        } else if (game.getBlackUser().getUsername().equals(playerUsername)) {
+            game.setDrawStatus(DrawStatuses.BLACK_PROPOSES_DRAW);
+        } else {
+            throw new UsernameNotFoundException("Username %s not found".formatted(playerUsername));
+        }
+        gameRepository.save(game);
+        messagingTemplate.convertAndSend("/moves/" + gameId, "");
+    }
+
+    public void acceptDraw(long gameId, String playerUsername) {
+        Game game = gameRepository.findByIdOrThrowException(gameId);
+        if ((DrawStatuses.WHITE_PROPOSES_DRAW.equals(game.getDrawStatus()) && game.getBlackUser().getUsername().equals(playerUsername)) ||
+                (DrawStatuses.BLACK_PROPOSES_DRAW.equals(game.getDrawStatus()) && game.getWhiteUser().getUsername().equals(playerUsername))) {
+            game.setDrawStatus(DrawStatuses.DRAW_ACCEPTED);
+            game.setStatus(GameStatuses.DRAW);
+        } else {
+            throw new InvalidActionException("Player %s can't accept draw in game with id %s in draw status %s"
+                    .formatted(playerUsername, game.getId(), game.getDrawStatus()));
+        }
+
         gameRepository.save(game);
         messagingTemplate.convertAndSend("/moves/" + gameId, "");
     }
@@ -114,6 +149,7 @@ public class GameService {
                 .opponent(game.getOpponent() != null ? game.getOpponent().getUsername() : null)
                 .creatorWhite(game.isCreatorWhite())
                 .moves(game.getMoves())
-                .status(game.getStatus()).build();
+                .status(game.getStatus())
+                .drawStatus(game.getDrawStatus().toString()).build();
     }
 }
