@@ -1,6 +1,6 @@
 package com.github.syakimovich.chessserver;
 
-import com.github.syakimovich.chessserver.consts.GameStatuses;
+import com.github.syakimovich.chessserver.consts.GameStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
@@ -47,6 +47,6 @@ public class ChessServerMockMvcTests {
         Map<String, Object> jsonMap = jsonParser.parseMap(getGameResult.getResponse().getContentAsString());
         assertEquals(USERNAME, jsonMap.get("creator"));
         assertTrue((Boolean) jsonMap.get("creatorWhite"));
-        assertEquals(GameStatuses.BLACK_TO_JOIN, jsonMap.get("status"));
+        assertEquals(GameStatus.BLACK_TO_JOIN.toString(), jsonMap.get("status"));
     }
 }

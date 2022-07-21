@@ -1,6 +1,7 @@
 package com.github.syakimovich.chessserver.entities;
 
 import com.github.syakimovich.chessserver.consts.DrawStatus;
+import com.github.syakimovich.chessserver.consts.GameStatus;
 import com.github.syakimovich.chessserver.utils.ListToStringConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,7 +40,8 @@ public class Game {
 
     @Getter
     @Setter
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private GameStatus status;
 
     @Getter
     @Setter

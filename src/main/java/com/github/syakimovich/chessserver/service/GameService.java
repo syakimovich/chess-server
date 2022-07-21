@@ -4,7 +4,7 @@ import com.github.bhlangonijr.chesslib.Board;
 import com.github.bhlangonijr.chesslib.Side;
 import com.github.bhlangonijr.chesslib.move.MoveConversionException;
 import com.github.syakimovich.chessserver.consts.DrawStatus;
-import com.github.syakimovich.chessserver.consts.GameStatuses;
+import com.github.syakimovich.chessserver.consts.GameStatus;
 import com.github.syakimovich.chessserver.dto.GameDTO;
 import com.github.syakimovich.chessserver.entities.Game;
 import com.github.syakimovich.chessserver.exceptions.InvalidActionException;
@@ -37,7 +37,7 @@ public class GameService {
     }
 
     public List<GameDTO> getOpenGames() {
-        return gameRepository.findByStatusIn(List.of(GameStatuses.BLACK_TO_JOIN, GameStatuses.WHITE_TO_JOIN))
+        return gameRepository.findByStatusIn(List.of(GameStatus.BLACK_TO_JOIN, GameStatus.WHITE_TO_JOIN))
                 .stream().map(this::gameToDTO).collect(Collectors.toList());
     }
 
@@ -45,9 +45,9 @@ public class GameService {
         Game game = new Game(userRepository.findByUsernameOrThrowException(creatorUsername), isCreatorWhite);
         game.setMoves(Collections.emptyList());
         if (isCreatorWhite) {
-            game.setStatus(GameStatuses.BLACK_TO_JOIN);
+            game.setStatus(GameStatus.BLACK_TO_JOIN);
         } else {
-            game.setStatus(GameStatuses.WHITE_TO_JOIN);
+            game.setStatus(GameStatus.WHITE_TO_JOIN);
         }
         game.setDrawStatus(DrawStatus.NO_PROPOSAL);
         return gameRepository.save(game).getId();
@@ -56,7 +56,7 @@ public class GameService {
     public void join(long gameId, String opponentUsername) {
         Game game = gameRepository.findByIdOrThrowException(gameId);
         game.setOpponent(userRepository.findByUsernameOrThrowException(opponentUsername));
-        game.setStatus(GameStatuses.WHITE_TO_MOVE);
+        game.setStatus(GameStatus.WHITE_TO_MOVE);
         gameRepository.save(game);
         messagingTemplate.convertAndSend("/moves/" + gameId, "");
     }
@@ -82,7 +82,7 @@ public class GameService {
         if ((DrawStatus.WHITE_PROPOSES_DRAW.equals(game.getDrawStatus()) && game.getBlackUser().getUsername().equals(playerUsername)) ||
                 (DrawStatus.BLACK_PROPOSES_DRAW.equals(game.getDrawStatus()) && game.getWhiteUser().getUsername().equals(playerUsername))) {
             game.setDrawStatus(DrawStatus.DRAW_ACCEPTED);
-            game.setStatus(GameStatuses.DRAW);
+            game.setStatus(GameStatus.DRAW);
         } else {
             throw new InvalidActionException("Player %s can't accept draw in game with id %s in draw status %s"
                     .formatted(playerUsername, game.getId(), game.getDrawStatus()));
@@ -119,18 +119,18 @@ public class GameService {
             game.setMoves(newMoves);
 
             if(board.isDraw()) {
-                game.setStatus(GameStatuses.DRAW);
+                game.setStatus(GameStatus.DRAW);
             } else if (board.isMated()) {
                 if (board.getSideToMove().equals(Side.WHITE)) {
-                    game.setStatus(GameStatuses.BLACK_WON);
+                    game.setStatus(GameStatus.BLACK_WON);
                 } else {
-                    game.setStatus(GameStatuses.WHITE_WON);
+                    game.setStatus(GameStatus.WHITE_WON);
                 }
             } else {
                 if (board.getSideToMove().equals(Side.WHITE)) {
-                    game.setStatus(GameStatuses.WHITE_TO_MOVE);
+                    game.setStatus(GameStatus.WHITE_TO_MOVE);
                 } else {
-                    game.setStatus(GameStatuses.BLACK_TO_MOVE);
+                    game.setStatus(GameStatus.BLACK_TO_MOVE);
                 }
             }
 
@@ -149,7 +149,7 @@ public class GameService {
                 .opponent(game.getOpponent() != null ? game.getOpponent().getUsername() : null)
                 .creatorWhite(game.isCreatorWhite())
                 .moves(game.getMoves())
-                .status(game.getStatus())
+                .status(game.getStatus().toString())
                 .drawStatus(game.getDrawStatus().toString()).build();
     }
 }

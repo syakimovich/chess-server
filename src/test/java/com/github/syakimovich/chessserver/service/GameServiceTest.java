@@ -1,6 +1,6 @@
 package com.github.syakimovich.chessserver.service;
 
-import com.github.syakimovich.chessserver.consts.GameStatuses;
+import com.github.syakimovich.chessserver.consts.GameStatus;
 import com.github.syakimovich.chessserver.entities.Game;
 import com.github.syakimovich.chessserver.repositories.GameRepository;
 import com.github.syakimovich.chessserver.repositories.UserRepository;
@@ -53,7 +53,7 @@ class GameServiceTest {
         assertTrue(result);
         verify(gameRepository).save(gameCaptor.capture());
         Game capturedGame = gameCaptor.getValue();
-        assertEquals(GameStatuses.BLACK_TO_MOVE, capturedGame.getStatus());
+        assertEquals(GameStatus.BLACK_TO_MOVE, capturedGame.getStatus());
         assertEquals(List.of("Nf3","Nf6", move), capturedGame.getMoves());
     }
 
