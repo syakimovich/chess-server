@@ -94,8 +94,8 @@ public class GameService {
 
     /**
      * Perform move
-     * @param gameId
-     * @param move
+     * @param gameId id of the game
+     * @param move move in SAN notation
      * @return true if move is valid and successfully executed, false if move is invalid
      */
     public boolean move(long gameId, String move) {
