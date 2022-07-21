@@ -1,5 +1,10 @@
 import React from 'react';
-import { Formik, Field, Form } from 'formik';
+import { useFormik } from 'formik';
+import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 function CreateGame(props) {
 
@@ -18,22 +23,31 @@ function CreateGame(props) {
     props.openGame(newGameId);
   }
 
-  return <div>
-    <div>Create new game</div>
-    <Formik
-      initialValues={{
-        isCreatorWhite: true
-      }}
-      onSubmit={callCreateGame}
-    >
-      <Form>
-        <label htmlFor="isCreatorWhite">Play white</label>
-        <Field type="checkbox" name="isCreatorWhite" />
+  const formik = useFormik({
+    initialValues: {
+      isCreatorWhite: true,
+    },
+    onSubmit: values => {
+      callCreateGame(values);
+    },
+  });
 
-        <button type="submit">Create</button>
-      </Form>
-    </Formik>
-  </div>
+  return <Container>
+    <Row>
+      <Col>
+        <h1>Create new Game</h1>
+        <Form onSubmit={formik.handleSubmit}>
+          <Form.Group className="mb-3" controlId="isCreatorWhite">
+            <Form.Check type="checkbox" id="isCreatorWhite" name="isCreatorWhite" onChange={formik.handleChange} 
+            checked={formik.values.isCreatorWhite} label="Play white" />
+          </Form.Group>
+          <Button variant="primary" type="submit">
+            Create
+          </Button>
+        </Form>
+      </Col>
+    </Row>
+  </Container>
 }
 
 export default CreateGame;
