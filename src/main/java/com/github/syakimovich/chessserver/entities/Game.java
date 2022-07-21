@@ -1,6 +1,6 @@
 package com.github.syakimovich.chessserver.entities;
 
-import com.github.syakimovich.chessserver.consts.DrawStatuses;
+import com.github.syakimovich.chessserver.consts.DrawStatus;
 import com.github.syakimovich.chessserver.utils.ListToStringConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,7 +44,7 @@ public class Game {
     @Getter
     @Setter
     @Enumerated(EnumType.STRING)
-    private DrawStatuses drawStatus;
+    private DrawStatus drawStatus;
 
     public Game(User creator, boolean creatorWhite) {
         this.creator = creator;

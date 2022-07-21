@@ -3,7 +3,7 @@ package com.github.syakimovich.chessserver.service;
 import com.github.bhlangonijr.chesslib.Board;
 import com.github.bhlangonijr.chesslib.Side;
 import com.github.bhlangonijr.chesslib.move.MoveConversionException;
-import com.github.syakimovich.chessserver.consts.DrawStatuses;
+import com.github.syakimovich.chessserver.consts.DrawStatus;
 import com.github.syakimovich.chessserver.consts.GameStatuses;
 import com.github.syakimovich.chessserver.dto.GameDTO;
 import com.github.syakimovich.chessserver.entities.Game;
@@ -49,7 +49,7 @@ public class GameService {
         } else {
             game.setStatus(GameStatuses.WHITE_TO_JOIN);
         }
-        game.setDrawStatus(DrawStatuses.NO_PROPOSAL);
+        game.setDrawStatus(DrawStatus.NO_PROPOSAL);
         return gameRepository.save(game).getId();
     }
 
@@ -63,13 +63,13 @@ public class GameService {
 
     public void proposeDraw(long gameId, String playerUsername) {
         Game game = gameRepository.findByIdOrThrowException(gameId);
-        if (!DrawStatuses.NO_PROPOSAL.equals(game.getDrawStatus())) {
+        if (!DrawStatus.NO_PROPOSAL.equals(game.getDrawStatus())) {
             throw new InvalidActionException("Can't propose draw while game with id %s is in draw status: %s".formatted(game.getId(), game.getDrawStatus()));
         }
         if (game.getWhiteUser().getUsername().equals(playerUsername)) {
-            game.setDrawStatus(DrawStatuses.WHITE_PROPOSES_DRAW);
+            game.setDrawStatus(DrawStatus.WHITE_PROPOSES_DRAW);
         } else if (game.getBlackUser().getUsername().equals(playerUsername)) {
-            game.setDrawStatus(DrawStatuses.BLACK_PROPOSES_DRAW);
+            game.setDrawStatus(DrawStatus.BLACK_PROPOSES_DRAW);
         } else {
             throw new UsernameNotFoundException("Username %s not found".formatted(playerUsername));
         }
@@ -79,9 +79,9 @@ public class GameService {
 
     public void acceptDraw(long gameId, String playerUsername) {
         Game game = gameRepository.findByIdOrThrowException(gameId);
-        if ((DrawStatuses.WHITE_PROPOSES_DRAW.equals(game.getDrawStatus()) && game.getBlackUser().getUsername().equals(playerUsername)) ||
-                (DrawStatuses.BLACK_PROPOSES_DRAW.equals(game.getDrawStatus()) && game.getWhiteUser().getUsername().equals(playerUsername))) {
-            game.setDrawStatus(DrawStatuses.DRAW_ACCEPTED);
+        if ((DrawStatus.WHITE_PROPOSES_DRAW.equals(game.getDrawStatus()) && game.getBlackUser().getUsername().equals(playerUsername)) ||
+                (DrawStatus.BLACK_PROPOSES_DRAW.equals(game.getDrawStatus()) && game.getWhiteUser().getUsername().equals(playerUsername))) {
+            game.setDrawStatus(DrawStatus.DRAW_ACCEPTED);
             game.setStatus(GameStatuses.DRAW);
         } else {
             throw new InvalidActionException("Player %s can't accept draw in game with id %s in draw status %s"
