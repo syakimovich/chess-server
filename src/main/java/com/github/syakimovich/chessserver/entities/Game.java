@@ -33,6 +33,7 @@ public class Game {
     @Convert(converter = ListToStringConverter.class)
     @Getter
     @Setter
+    @Column(length = 100000)
     private List<String> moves;
 
     @Getter
