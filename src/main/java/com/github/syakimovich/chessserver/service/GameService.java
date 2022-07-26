@@ -13,6 +13,7 @@ import com.github.syakimovich.chessserver.repositories.UserRepository;
 import com.github.syakimovich.chessserver.utils.DTOConverter;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class GameService {
 
     private GameRepository gameRepository;
@@ -41,6 +43,7 @@ public class GameService {
                 .stream().map(dtoConverter::gameToDTO).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = false)
     public long createGame(String creatorUsername, boolean isCreatorWhite) {
         Game game = new Game(userRepository.findByUsernameOrThrowException(creatorUsername), isCreatorWhite);
         game.setMoves(Collections.emptyList());
@@ -53,6 +56,7 @@ public class GameService {
         return gameRepository.save(game).getId();
     }
 
+    @Transactional(readOnly = false)
     public void join(long gameId, String opponentUsername) {
         Game game = gameRepository.findByIdOrThrowException(gameId);
         game.setOpponent(userRepository.findByUsernameOrThrowException(opponentUsername));
@@ -60,6 +64,7 @@ public class GameService {
         gameRepository.save(game);
     }
 
+    @Transactional(readOnly = false)
     public void proposeDraw(long gameId, String playerUsername) {
         Game game = gameRepository.findByIdOrThrowException(gameId);
         if (!DrawStatus.NO_PROPOSAL.equals(game.getDrawStatus())) {
@@ -75,6 +80,7 @@ public class GameService {
         gameRepository.save(game);
     }
 
+    @Transactional(readOnly = false)
     public void acceptDraw(long gameId, String playerUsername) {
         Game game = gameRepository.findByIdOrThrowException(gameId);
         if ((DrawStatus.WHITE_PROPOSES_DRAW.equals(game.getDrawStatus()) && game.getBlackUser().getUsername().equals(playerUsername)) ||
@@ -95,6 +101,7 @@ public class GameService {
      * @param move move in SAN notation
      * @return true if move is valid and successfully executed, false if move is invalid
      */
+    @Transactional(readOnly = false)
     public boolean move(long gameId, String move) {
         Board board = new Board();
         Game game = gameRepository.findByIdOrThrowException(gameId);
