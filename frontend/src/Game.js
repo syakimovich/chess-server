@@ -85,7 +85,7 @@ function Game(props) {
     const client = Stomp.over(() => new SockJS('/ws'));
     client.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        client.subscribe('/moves/' + props.gameId, function (move) {
+        client.subscribe('/game/' + props.gameId, function (move) {
           console.log("message: " + move);
           reloadGame();
         });

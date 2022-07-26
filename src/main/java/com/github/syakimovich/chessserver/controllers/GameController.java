@@ -32,19 +32,19 @@ public class GameController {
     @PostMapping("/game/join")
     public void join(@RequestBody GameDTO dto) {
         gameService.join(dto.getId(), dto.getOpponent());
-        messagingTemplate.convertAndSend("/moves/" + dto.getId(), "");
+        messagingTemplate.convertAndSend("/game/" + dto.getId(), "");
     }
 
     @PostMapping("/game/{gameId}/proposeDraw")
     public void proposeDraw(@PathVariable Long gameId, @RequestBody String username) {
         gameService.proposeDraw(gameId, username);
-        messagingTemplate.convertAndSend("/moves/" + gameId, "");
+        messagingTemplate.convertAndSend("/game/" + gameId, "");
     }
 
     @PostMapping("/game/{gameId}/acceptDraw")
     public void acceptDraw(@PathVariable Long gameId, @RequestBody String username) {
         gameService.acceptDraw(gameId, username);
-        messagingTemplate.convertAndSend("/moves/" + gameId, "");
+        messagingTemplate.convertAndSend("/game/" + gameId, "");
     }
 
     @GetMapping("/game/{gameId}")
@@ -56,7 +56,7 @@ public class GameController {
     public void move(@PathVariable Long gameId, @RequestBody String move) {
         boolean result = gameService.move(gameId, move);
         if (result) {
-            messagingTemplate.convertAndSend("/moves/" + gameId, move);
+            messagingTemplate.convertAndSend("/game/" + gameId, move);
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal move");
         }
