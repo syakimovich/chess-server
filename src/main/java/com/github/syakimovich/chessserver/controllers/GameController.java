@@ -3,6 +3,7 @@ package com.github.syakimovich.chessserver.controllers;
 import com.github.syakimovich.chessserver.dto.GameDTO;
 import com.github.syakimovich.chessserver.service.GameService;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -11,9 +12,11 @@ import java.util.List;
 @RestController
 public class GameController {
     private GameService gameService;
+    private SimpMessagingTemplate messagingTemplate;
 
-    public GameController(GameService gameService) {
+    public GameController(GameService gameService, SimpMessagingTemplate messagingTemplate) {
         this.gameService = gameService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @PostMapping("/game/create")
@@ -29,16 +32,19 @@ public class GameController {
     @PostMapping("/game/join")
     public void join(@RequestBody GameDTO dto) {
         gameService.join(dto.getId(), dto.getOpponent());
+        messagingTemplate.convertAndSend("/moves/" + dto.getId(), "");
     }
 
     @PostMapping("/game/{gameId}/proposeDraw")
     public void proposeDraw(@PathVariable Long gameId, @RequestBody String username) {
         gameService.proposeDraw(gameId, username);
+        messagingTemplate.convertAndSend("/moves/" + gameId, "");
     }
 
     @PostMapping("/game/{gameId}/acceptDraw")
     public void acceptDraw(@PathVariable Long gameId, @RequestBody String username) {
         gameService.acceptDraw(gameId, username);
+        messagingTemplate.convertAndSend("/moves/" + gameId, "");
     }
 
     @GetMapping("/game/{gameId}")
@@ -49,7 +55,9 @@ public class GameController {
     @PostMapping("/game/{gameId}/move")
     public void move(@PathVariable Long gameId, @RequestBody String move) {
         boolean result = gameService.move(gameId, move);
-        if (!result) {
+        if (result) {
+            messagingTemplate.convertAndSend("/moves/" + gameId, move);
+        } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal move");
         }
     }

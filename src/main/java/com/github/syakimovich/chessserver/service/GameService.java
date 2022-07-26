@@ -10,7 +10,7 @@ import com.github.syakimovich.chessserver.entities.Game;
 import com.github.syakimovich.chessserver.exceptions.InvalidActionException;
 import com.github.syakimovich.chessserver.repositories.GameRepository;
 import com.github.syakimovich.chessserver.repositories.UserRepository;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.github.syakimovich.chessserver.utils.DTOConverter;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -24,21 +24,21 @@ public class GameService {
 
     private GameRepository gameRepository;
     private UserRepository userRepository;
-    private SimpMessagingTemplate messagingTemplate;
+    private DTOConverter dtoConverter;
 
-    public GameService(GameRepository gameRepository, UserRepository userRepository, SimpMessagingTemplate messagingTemplate) {
+    public GameService(GameRepository gameRepository, UserRepository userRepository, DTOConverter dtoConverter) {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
-        this.messagingTemplate = messagingTemplate;
+        this.dtoConverter = dtoConverter;
     }
 
     public GameDTO findGame(long id) {
-        return gameToDTO(gameRepository.findByIdOrThrowException(id));
+        return dtoConverter.gameToDTO(gameRepository.findByIdOrThrowException(id));
     }
 
     public List<GameDTO> getOpenGames() {
         return gameRepository.findByStatusIn(List.of(GameStatus.BLACK_TO_JOIN, GameStatus.WHITE_TO_JOIN))
-                .stream().map(this::gameToDTO).collect(Collectors.toList());
+                .stream().map(dtoConverter::gameToDTO).collect(Collectors.toList());
     }
 
     public long createGame(String creatorUsername, boolean isCreatorWhite) {
@@ -58,7 +58,6 @@ public class GameService {
         game.setOpponent(userRepository.findByUsernameOrThrowException(opponentUsername));
         game.setStatus(GameStatus.WHITE_TO_MOVE);
         gameRepository.save(game);
-        messagingTemplate.convertAndSend("/moves/" + gameId, "");
     }
 
     public void proposeDraw(long gameId, String playerUsername) {
@@ -74,7 +73,6 @@ public class GameService {
             throw new UsernameNotFoundException("Username %s not found".formatted(playerUsername));
         }
         gameRepository.save(game);
-        messagingTemplate.convertAndSend("/moves/" + gameId, "");
     }
 
     public void acceptDraw(long gameId, String playerUsername) {
@@ -89,7 +87,6 @@ public class GameService {
         }
 
         gameRepository.save(game);
-        messagingTemplate.convertAndSend("/moves/" + gameId, "");
     }
 
     /**
@@ -135,21 +132,10 @@ public class GameService {
             }
 
             gameRepository.save(game);
-            messagingTemplate.convertAndSend("/moves/" + gameId, move);
             return true;
         } else {
             return false;
         }
     }
 
-    public GameDTO gameToDTO(Game game) {
-        return GameDTO.builder()
-                .id(game.getId())
-                .creator(game.getCreator().getUsername())
-                .opponent(game.getOpponent() != null ? game.getOpponent().getUsername() : null)
-                .creatorWhite(game.isCreatorWhite())
-                .moves(game.getMoves())
-                .status(game.getStatus().toString())
-                .drawStatus(game.getDrawStatus().toString()).build();
-    }
 }

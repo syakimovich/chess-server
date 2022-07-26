@@ -4,6 +4,7 @@ import com.github.syakimovich.chessserver.consts.GameStatus;
 import com.github.syakimovich.chessserver.entities.Game;
 import com.github.syakimovich.chessserver.repositories.GameRepository;
 import com.github.syakimovich.chessserver.repositories.UserRepository;
+import com.github.syakimovich.chessserver.utils.DTOConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +29,7 @@ class GameServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private SimpMessagingTemplate messagingTemplate;
+    private DTOConverter dtoConverter;
 
     @Captor
     private ArgumentCaptor<Game> gameCaptor;
@@ -37,7 +38,7 @@ class GameServiceTest {
 
     @BeforeEach
     public void init() {
-        gameService = new GameService(gameRepository, userRepository, messagingTemplate);
+        gameService = new GameService(gameRepository, userRepository, dtoConverter);
     }
 
     @Test
