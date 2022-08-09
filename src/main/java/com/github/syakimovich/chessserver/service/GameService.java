@@ -95,6 +95,21 @@ public class GameService {
         gameRepository.save(game);
     }
 
+    @Transactional(readOnly = false)
+    public void resign(long gameId, String playerUsername) {
+        Game game = gameRepository.findByIdOrThrowException(gameId);
+        if (game.getBlackUser().getUsername().equals(playerUsername)) {
+            game.setStatus(GameStatus.WHITE_WON);
+        } else if (game.getWhiteUser().getUsername().equals(playerUsername)) {
+            game.setStatus(GameStatus.BLACK_WON);
+        } else {
+            throw new InvalidActionException("Player %s can't resign in game with id %s"
+                    .formatted(playerUsername, game.getId()));
+        }
+
+        gameRepository.save(game);
+    }
+
     /**
      * Perform move
      * @param gameId id of the game

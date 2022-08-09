@@ -47,6 +47,12 @@ public class GameController {
         messagingTemplate.convertAndSend("/game/" + gameId, "");
     }
 
+    @PostMapping("/game/{gameId}/resign")
+    public void resign(@PathVariable Long gameId, @RequestBody String username) {
+        gameService.resign(gameId, username);
+        messagingTemplate.convertAndSend("/game/" + gameId, "");
+    }
+
     @GetMapping("/game/{gameId}")
     public GameDTO getGame(@PathVariable Long gameId) {
         return gameService.findGame(gameId);
