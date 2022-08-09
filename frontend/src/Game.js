@@ -66,6 +66,17 @@ function Game(props) {
     });
   }
 
+  function resign() {
+    fetch('/game/' + props.gameId + '/resign', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: props.loggedInUser
+    });
+  }
+
   function onDrop(sourceSquare, targetSquare) {
     let move = null;
     safeGameMutate((game) => {
@@ -129,6 +140,12 @@ function Game(props) {
     }
   }
 
+  function getResignButton(gameParam) {
+    if (gameParam.status === 'WHITE_TO_MOVE' || gameParam.status === 'BLACK_TO_MOVE') {
+      return <Button onClick={resign} >Resign</Button>
+    }
+  }
+
   return <div>
     <div>Game id: {gameInfo.id}&nbsp;
     White: {getWhiteUsername(gameInfo)}&nbsp;
@@ -138,6 +155,7 @@ function Game(props) {
     Draw status: {gameInfo.drawStatus}</div>
     <div>
       {getDrawButton(gameInfo)}
+      {getResignButton(gameInfo)}
     </div>
     <div><Chessboard position={game.fen()} onPieceDrop={onDrop} boardOrientation={getBoardOrientation(gameInfo)} arePiecesDraggable={isCurrentPlayerMove(game, gameInfo)} /></div>
   </div>
