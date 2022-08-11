@@ -29,6 +29,11 @@ public class GameController {
         return gameService.getOpenGames();
     }
 
+    @GetMapping("/game/list-by-username")
+    public List<GameDTO> listByUsername(@RequestParam String username) {
+        return gameService.getPlayerGames(username);
+    }
+
     @PostMapping("/game/join")
     public void join(@RequestBody GameDTO dto) {
         gameService.join(dto.getId(), dto.getOpponent());

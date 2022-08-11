@@ -43,6 +43,10 @@ public class GameService {
                 .stream().map(dtoConverter::gameToDTO).collect(Collectors.toList());
     }
 
+    public List<GameDTO> getPlayerGames(String username) {
+        return gameRepository.findByUsername(username).stream().map(dtoConverter::gameToDTO).collect(Collectors.toList());
+    }
+
     @Transactional(readOnly = false)
     public long createGame(String creatorUsername, boolean isCreatorWhite) {
         Game game = new Game(userRepository.findByUsernameOrThrowException(creatorUsername), isCreatorWhite);
