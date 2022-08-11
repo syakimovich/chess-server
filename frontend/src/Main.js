@@ -7,14 +7,24 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 function Main(props) {
-  const [games, setGames] = useState([]);
+  const [openGames, setOpenGames] = useState([]);
+  const [myGames, setMyGames] = useState([]);
+  const [curView, setCurView] = useState('OPEN_GAMES');
   useEffect(() => {
-    async function fetchData() {
+    async function fetchOpenGames() {
       const response = await fetch('/game/listopen');
       const res = await response.json();
-      setGames(res);
+      setOpenGames(res);
     }
-    fetchData();
+    fetchOpenGames();
+    async function fetchMyGames() {
+      const response = await fetch('/game/list-by-username?' + new URLSearchParams({
+        username: props.loggedInUser
+    }));
+      const res = await response.json();
+      setMyGames(res);
+    }
+    fetchMyGames();
   }, []);
 
   async function callJoinGame(gameId) {
@@ -37,7 +47,9 @@ function Main(props) {
           <td>{!g.creatorWhite ? g.creator : g.opponent}</td> 
           <td>{g.creator}</td> 
           <td>{g.status}</td>
-          <td><Button variant="primary" onClick={() => callJoinGame(g.id)}>Join</Button></td>
+          <td>
+          {curView === 'OPEN_GAMES' && <Button variant="primary" onClick={() => callJoinGame(g.id)}>Join</Button>}
+          </td>
         </tr>)
     );
   };
@@ -46,6 +58,10 @@ function Main(props) {
     <Row>
       <Col>
         <div>
+          {curView !== 'OPEN_GAMES' && <Button variant="primary" onClick={() => setCurView('OPEN_GAMES')}>Games open to join</Button>}
+          {curView !== 'MY_GAMES' && <Button variant="primary" onClick={() => setCurView('MY_GAMES')}>My games</Button>}
+          {curView === 'OPEN_GAMES' && <h1>Games open to join</h1>}
+          {curView === 'MY_GAMES' && <h1>My games</h1>}
           <Table bordered>
             <thead>
               <tr>
@@ -58,7 +74,7 @@ function Main(props) {
               </tr>
             </thead>
             <tbody>
-              {gameList(games)}
+              {gameList(curView === 'OPEN_GAMES' ? openGames : myGames)}
             </tbody>
           </Table>
         
