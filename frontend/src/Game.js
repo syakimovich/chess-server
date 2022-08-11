@@ -112,8 +112,9 @@ function Game(props) {
     }
   }
 
-  function isCurrentPlayerMove(chessJsObj, gameParam) {
-    return (getBoardOrientation(gameParam) === 'white') !== (chessJsObj.turn() !== 'w');
+  function isCurrentPlayerMove(gameParam) {
+    return (gameParam.status === 'WHITE_TO_MOVE' && getBoardOrientation(gameParam) === 'white') || 
+      (gameParam.status === 'BLACK_TO_MOVE' && getBoardOrientation(gameParam) === 'black');
   }
 
   function getWhiteUsername(gameParam) {
@@ -157,7 +158,7 @@ function Game(props) {
       {getDrawButton(gameInfo)}
       {getResignButton(gameInfo)}
     </div>
-    <div><Chessboard position={game.fen()} onPieceDrop={onDrop} boardOrientation={getBoardOrientation(gameInfo)} arePiecesDraggable={isCurrentPlayerMove(game, gameInfo)} /></div>
+    <div><Chessboard position={game.fen()} onPieceDrop={onDrop} boardOrientation={getBoardOrientation(gameInfo)} arePiecesDraggable={isCurrentPlayerMove(gameInfo)} /></div>
   </div>
 }
 
