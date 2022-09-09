@@ -7,8 +7,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class UserService implements UserDetailsService {
 
     public static final String USER_ROLE = "USER";
@@ -27,6 +29,7 @@ public class UserService implements UserDetailsService {
         return new UserDetailsImpl(user.getUsername(), user.getPassword(), user.getRole());
     }
 
+    @Transactional(readOnly = false)
     public void createUser(String username, String password) {
         userRepository.save(new User(username, passwordEncoder.encode(password), USER_ROLE, true));
     }
